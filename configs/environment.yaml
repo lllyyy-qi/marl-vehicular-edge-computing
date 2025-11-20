@@ -1,0 +1,22 @@
+# Environment configuration
+environment:
+  simulation:
+    time_step: 0.1
+    max_steps: 1000
+    num_vehicles: 10
+    max_servers: 3
+
+  communication:
+    max_distance: 500.0
+    min_transmission_rate: 1.0
+
+  task_generation:
+    max_task_size: 10.0          # MB
+    max_compute_density: 1000.0  # cycles/bit
+
+  reward:
+    max_acceptable_latency: 1.0    # 最大可接受延迟1秒
+    min_latency: 0.001            # 最小延迟1毫秒
+    max_reward: 1.0               # 最大奖励
+    min_reward: -1.0              # 最小奖励
+    success_bonus: 0.5            # 成功执行奖励

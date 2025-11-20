@@ -1,0 +1,40 @@
+agent:
+  id: "vehicle_3"
+  type: "dqn"
+  
+  # 简化状态空间: 11维
+  state_space:
+    dimensions: 11
+    features: [
+      "task_size", "compute_density",
+      "server0_distance", "server0_load", "server0_rate",
+      "server1_distance", "server1_load", "server1_rate", 
+      "server2_distance", "server2_load", "server2_rate"
+    ]
+  
+  # 简化动作空间: 使用数字 0=local, 1=server[0], 2=server[1], 3=server[2]
+  action_space:
+    dimensions: 4
+    mapping: {
+      0: "0",  # local
+      1: "1",  # server[0]
+      2: "2",  # server[1] 
+      3: "3"   # server[2]
+    }
+  
+  # 简化奖励配置
+  reward:
+    base_reward_scale: 1.0
+    
+  # DQN训练参数
+  dqn:
+    gamma: 0.99
+    epsilon_start: 1.0
+    epsilon_end: 0.01
+    epsilon_decay: 0.995
+    learning_rate: 0.0005
+    target_update_frequency: 100
+    
+  # 网络结构
+  network:
+    hidden_layers: [64, 32]

@@ -23,3 +23,11 @@
 
 ## mock_veins_env可以模拟输入但是纯随机
 
+Socket连接信息
+地址: localhost
+
+端口: 8888
+
+协议: TCP Socket
+
+数据格式: JSON

@@ -21,7 +21,7 @@
 
 ## 模拟运行在 dqn_learning.py ,至少能确定可以在训练后得到成果，但是仅限于场景未改变，并未考虑小车移动
 
-新增文件，作为和udp通信的接口veins_udp_server.py
+新增文件，作为和udp通信的接口veins_udp_server.py，运行：`python veins_udp_server.py`
 
 当前能和omnet进行通信
 {

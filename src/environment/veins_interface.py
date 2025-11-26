@@ -24,6 +24,39 @@ class VeinsInterface:
         # 构建状态向量 [任务大小, 任务计算密度, 服务器1距离, 服务器1负载, 服务器1速率, ...]
         state_features = []
 
+        # 额外的本地车端特征（可选）
+        # 优先从 task_info 中读取，如果 OMNeT 把字段放在顶层 car 字段也会兼容
+        car_meta = veins_data.get("car", {})
+
+        local_load = None
+        local_proc_rate = None
+        # check task_info first then car_meta
+        if isinstance(task_info, dict):
+            local_load = task_info.get("local_load", None)
+            local_proc_rate = task_info.get("local_processing_rate", None)
+
+        if local_load is None:
+            local_load = car_meta.get("local_load", None)
+        if local_proc_rate is None:
+            local_proc_rate = car_meta.get("local_processing_rate", None)
+
+        # 如果提供了本地特征，先加入 state 特征（保持 0..1 归一化）
+        if local_load is not None:
+            try:
+                ll = float(local_load)
+            except Exception:
+                ll = 0.0
+            # 保证 0..1
+            state_features.append(min(max(ll, 0.0), 1.0))
+        
+        if local_proc_rate is not None:
+            try:
+                lpr = float(local_proc_rate)
+            except Exception:
+                lpr = 0.0
+            # 归一化到 Mbps 级别（cycles/s 可能更大，使用 1e6 作为缩放因子，防止过大数值）
+            state_features.append(min(lpr / 1_000_000.0, 1.0))
+
         # 任务特征 (2维)
         input_size_mb = task_info["input_size"] / 8_000_000  # bits to MB
         compute_density = task_info["demand"]  # cycles/bit
@@ -70,6 +103,28 @@ class VeinsInterface:
             "task_info": task_info,
             "servers": sorted_servers
         }
+
+        # 将解析到的本地特征回填到 task_info（便于外部查看/日志），并记录 best_uplink_rate
+        try:
+            # best uplink rate (bps) - 取可用服务器中最大的链路速率
+            best_rate = 0.0
+            for s in sorted_servers:
+                try:
+                    r = float(s.get("rate", 0.0))
+                    if r > best_rate:
+                        best_rate = r
+                except Exception:
+                    continue
+
+            # 写回 task_info 字段（不覆盖已有字段）
+            if isinstance(task_info, dict):
+                if "local_load" not in task_info and local_load is not None:
+                    task_info["local_load"] = float(local_load)
+                if "local_processing_rate" not in task_info and local_proc_rate is not None:
+                    task_info["local_processing_rate"] = float(local_proc_rate)
+                task_info["best_uplink_rate"] = best_rate
+        except Exception:
+            pass
 
         return state_vector, valid_actions, task_info
 

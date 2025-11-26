@@ -4,8 +4,9 @@ agent:
   
   # 简化状态空间: 11维 [任务大小, 任务密度] + [距离,负载,速率] * 3个服务器
   state_space:
-    dimensions: 11
+    dimensions: 13
     features: [
+      "local_load", "local_processing_rate",
       "task_size", "compute_density",
       "server0_distance", "server0_load", "server0_rate",
       "server1_distance", "server1_load", "server1_rate",

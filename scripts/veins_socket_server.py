@@ -60,6 +60,7 @@ class VeinsSocketServer:
                     msg_type = message.get("msg_type")
 
                     if msg_type == "state":
+                        print(f"收到状态消息: {message}")
                         response = self.process_state_message(message)
                     elif msg_type == "reward":
                         response = self.process_reward_message(message)
